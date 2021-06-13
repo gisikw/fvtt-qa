@@ -1,0 +1,17 @@
+{
+  "name": "fvtt-qa",
+  "version": "0.0.1",
+  "description": "Support tooling for QA testing of FoundryVTT extensions",
+  "bin": "./bin/fvtt-qa.js",
+  "main": "index.js",
+  "scripts": {
+    "exec": "./bin/fvtt-qa.js exec echo hi",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependenqaes": {
+    "node-fetch": "^2.6.1",
+    "unzipper": "^0.10.11"
+  }
+}
