@@ -1,24 +1,24 @@
 const http = require("http");
 const util = require("util");
 const fs = require("fs");
+
 const mkdir = util.promisify(fs.mkdir);
 const handlers = [];
 
-let PORT =
+const PORT =
   (process.argv.find((arg) => arg.match(/^--port=/)) || "").split("=")[1] ||
   30000;
-let DATA_PATH = (
+const DATA_PATH = (
   process.argv.find((arg) => arg.match(/^--dataPath=/)) || ""
 ).split("=")[1];
 const LICENSE_FILE = `${DATA_PATH}/Config/license.json`;
 
-http
-  .createServer(function (req, res) {
-    const handler = handlers.find(([pattern]) => pattern.test(req.url));
-    if (handler) return handler[1](req, res);
-    res.end();
-  })
-  .listen(PORT);
+function server(req, res) {
+  const handler = handlers.find(([pattern]) => pattern.test(req.url));
+  if (handler) return handler[1](req, res);
+  return res.end();
+}
+http.createServer(server).listen(PORT);
 
 handlers.push([
   /license/,

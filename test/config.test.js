@@ -4,7 +4,7 @@ const fs = require("fs");
 let FoundryQA;
 function reload() {
   jest.resetModules();
-  FoundryQA = require("../src/index.js");
+  FoundryQA = require("../src/index");
 }
 
 beforeEach(() => {

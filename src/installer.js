@@ -7,9 +7,14 @@ const { exec } = require("child_process");
 
 const mkdir = util.promisify(fs.mkdir);
 
-async function install({ installDir, cacheDir, username, password }) {
+async function install({
+  installDir,
+  cacheDir,
+  foundryUsername,
+  foundryPassword,
+}) {
   const { sessionId, license, latestVersion } =
-    await getMetadataFromFoundrySite({ username, password });
+    await getMetadataFromFoundrySite({ foundryUsername, foundryPassword });
   const zip = await downloadZipUnlessCached({
     version: latestVersion,
     cacheDir,
@@ -20,13 +25,16 @@ async function install({ installDir, cacheDir, username, password }) {
   return latestVersion;
 }
 
-async function getMetadataFromFoundrySite({ username, password }) {
+async function getMetadataFromFoundrySite({
+  foundryUsername,
+  foundryPassword,
+}) {
   const { middlewareToken, csrfToken } = await getMiddlewareAndCSRFToken();
   const { sessionId, caseUsername } = await getSessionAndUsername({
     middlewareToken,
     csrfToken,
-    username,
-    password,
+    foundryUsername,
+    foundryPassword,
   });
   const { license, latestVersion } = await getLicenseAndLatestVersion({
     sessionId,
@@ -46,8 +54,12 @@ async function downloadZipUnlessCached({ version, cacheDir, sessionId }) {
   const fileStream = fs.createWriteStream(zip);
   return new Promise((resolve, reject) => {
     res.body.pipe(fileStream);
-    res.body.on("error", reject);
-    fileStream.on("finish", resolve(zip));
+    res.body.on("error", () => {
+      reject();
+    });
+    fileStream.on("finish", () => {
+      resolve(zip);
+    });
   });
 }
 
@@ -84,8 +96,8 @@ async function getMiddlewareAndCSRFToken() {
 async function getSessionAndUsername({
   middlewareToken,
   csrfToken,
-  username,
-  password,
+  foundryUsername,
+  foundryPassword,
 }) {
   const resp = await fetch("https://foundryvtt.com/auth/login/", {
     method: "POST",
@@ -94,7 +106,7 @@ async function getSessionAndUsername({
       Cookie: `csrftoken=${csrfToken}`,
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     },
-    body: `csrfmiddlewaretoken=${middlewareToken}&login_username=${username}&login_password=${password}&login_redirect=%2F`,
+    body: `csrfmiddlewaretoken=${middlewareToken}&login_username=${foundryUsername}&login_password=${foundryPassword}&login_redirect=%2F`,
     redirect: "manual",
   });
   const sessionId = getCookieValue(resp, "sessionid");

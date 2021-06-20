@@ -1,19 +1,20 @@
 const os = require("os");
 const fs = require("fs");
-const FoundryQA = require("../src/index.js");
+const FoundryQA = require("../src/index");
 
-const cacheDir = os.tmpdir();
-const installDir = os.tmpdir();
-const username = "mock-username";
-const password = "mock-password";
+const config = {
+  ...FoundryQA.Config,
+  ...(process.env.USE_EXTERNAL_FOUNDRY
+    ? {}
+    : {
+        cacheDir: os.tmpdir(),
+        installDir: os.tmpdir(),
+      }),
+};
 
 test("install a version not cached locally via user credentials", async () => {
-  const latestVersion = await FoundryQA.Installer.install({
-    username,
-    password,
-    cacheDir,
-    installDir,
-  });
+  const { cacheDir, installDir } = config;
+  const latestVersion = await FoundryQA.Installer.install(config);
   expect(
     fs.existsSync(`${cacheDir}/foundryvtt-${latestVersion}.zip`)
   ).toBeTruthy();

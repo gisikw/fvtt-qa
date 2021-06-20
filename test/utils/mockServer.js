@@ -1,16 +1,18 @@
+const archiver = require("archiver");
+const path = require("path");
+
 if (process.env.USE_EXTERNAL_FOUNDRY) {
-  jest.setTimeout(180000);
+  jest.setTimeout(600000);
 } else {
   mockExternalAPIs();
 }
 
 function mockExternalAPIs() {
-  const archiver = require("archiver");
   const handlers = [];
   jest.mock("node-fetch", () => (url, opts) => {
     const handler = handlers.find(([pattern]) => pattern.test(url));
     if (handler) return handler[1](url, opts);
-    throw `No mock for url: ${url}`;
+    throw new Error(`No mock for url: ${url}`);
   });
   const realFetch = jest.requireActual("node-fetch");
 
@@ -58,7 +60,7 @@ function mockExternalAPIs() {
     /download\?version=9\.9\.9/,
     () => {
       const archive = archiver("zip");
-      archive.directory(__dirname + "/mockFoundry/", false);
+      archive.directory(path.join(__dirname, "/mockFoundry/"), false);
       archive.finalize();
       return { body: archive };
     },

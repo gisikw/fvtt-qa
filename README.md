@@ -36,6 +36,6 @@ console.log(`Installed v${latestVersion} of FoundryVTT`);
 - [x] Update Installer activation to find an open port
 - [x] Create a Config module that supports project-level .fvtt-qa.js
 - [x] Update Jest to make fetch-stubbing optional
-- [ ] Update Installer tests to use Config credentials when testing against real API
+- [x] Update Installer tests to use Config credentials when testing against real API
 - [ ] Split out Installer interactions with foundryvtt.com and the local instance
 - [ ] Use `path.join` instead of `${dir}/${name}`

@@ -6,7 +6,8 @@
   "main": "./src/index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src --cache",
+    "test:e2e": "USE_EXTERNAL_FOUNDRY=1 npm run test",
+    "lint": "eslint src test --cache",
     "format": "prettier --write .",
     "prepare": "husky install"
   },
