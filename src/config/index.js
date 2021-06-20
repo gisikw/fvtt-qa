@@ -23,6 +23,7 @@ const argvConfig = process.argv
     };
   }, {});
 
+// eslint-disable-next-line import/no-dynamic-require
 const fileConfig = require(argvConfig.config || DEFAULT_CONFIG.config);
 
 module.exports = {

@@ -4,6 +4,7 @@ const util = require("util");
 const fetch = require("node-fetch");
 const unzipper = require("unzipper");
 const { exec } = require("child_process");
+
 const mkdir = util.promisify(fs.mkdir);
 
 async function install({ installDir, cacheDir, username, password }) {
@@ -43,7 +44,7 @@ async function downloadZipUnlessCached({ version, cacheDir, sessionId }) {
     headers: { Cookie: `sessionid=${sessionId}` },
   });
   const fileStream = fs.createWriteStream(zip);
-  await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     res.body.pipe(fileStream);
     res.body.on("error", reject);
     fileStream.on("finish", resolve(zip));
@@ -98,7 +99,7 @@ async function getSessionAndUsername({
   });
   const sessionId = getCookieValue(resp, "sessionid");
   const caseUsername = getCookieValue(resp, "messages").match(
-    /You are now logged in as ([^\!]+)/
+    /You are now logged in as ([^!]+)/
   )[1];
   return { sessionId, caseUsername };
 }
@@ -127,7 +128,9 @@ function anyResponse(url) {
         await fetch(url);
         clearInterval(interval);
         resolve();
-      } catch (e) {}
+      } catch (e) {
+        // Ignore failed requests
+      }
     }, 500);
   });
 }
@@ -143,9 +146,7 @@ function post(url, body) {
 }
 
 function getCookieValue(resp, cookie) {
-  const line = resp.headers
-    .raw()
-    ["set-cookie"].find((line) => line.includes(cookie));
+  const line = resp.headers.raw()["set-cookie"].find((l) => l.includes(cookie));
   return line.match(/=([^;]+)/)[1];
 }
 

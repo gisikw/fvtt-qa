@@ -9,7 +9,8 @@ const MARKERS = [".git", ".hg"];
 const markerExists = (directory) =>
   MARKERS.some((mark) => fs.existsSync(path.join(directory, mark)));
 
-function findProjectRoot(directory) {
+function findProjectRoot(initialDirectory) {
+  let directory = initialDirectory;
   while (!markerExists(directory)) {
     const parentDirectory = path.resolve(directory, "..");
     if (parentDirectory === directory) {

@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+
+const childProcess = require("child_process");
 const server = require("../server");
 
 const commands = {};
@@ -11,7 +14,7 @@ async function run(rawArguments) {
   commands[rawArguments.shift()](rawArguments);
 }
 
-commands.exec = async function (args) {
+commands.exec = async function exec(args) {
   const config = buildConfig();
   const { isInstalled, isLicensed } = server.getStatus(config);
   if (!isInstalled || !isLicensed) {
@@ -20,14 +23,14 @@ commands.exec = async function (args) {
   }
   try {
     await server.start(config);
-    child_process.spawnSync(args.pop(), args);
+    childProcess.spawnSync(args.pop(), args);
   } finally {
     server.close();
   }
 };
 
-commands.install = async function () {
-  const config = buildConfig();
+commands.install = async function install() {
+  // const config = buildConfig();
   server.install();
 };
 
