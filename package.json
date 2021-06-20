@@ -6,12 +6,15 @@
   "main": "index.js",
   "scripts": {
     "exec": "./bin/fvtt-qa.js exec echo hi",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependenqaes": {
     "node-fetch": "^2.6.1",
     "unzipper": "^0.10.11"
+  },
+  "devDependencies": {
+    "jest": "^27.0.4"
   }
 }
