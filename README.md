@@ -9,9 +9,9 @@ Not much yet - it can install and activate the latest Foundry version programmat
 ```js
 const FoundryQA = require('fvtt-qa');
 
-const latestVersion = await FoundryQA.Installer({
+const latestVersion = await FoundryQA.Installer.install({
   login: '<foundry username>',
-  password: '<foundry password',
+  password: '<foundry password>',
   cacheDir: '$HOME',   // Save zip files to avoid multiple downloads
   installDir: '$HOME', // Installs FoundryVTT to <installDir>/foundryvtt
                        // Creates <installDir>/foundrydata for the data
@@ -27,3 +27,4 @@ console.log(`Installed v${latestVersion} of FoundryVTT`);
 - Manage setup and teardown of Foundry applications via configuration (e.g. "I want to test version 0.8.3 with modules x, y, and z")
 - Support project-level configuration files to make baseline testing easy
 - Add Github Hooks integration to allow CI regression testing against Foundry 
+- Support installation via Timed URL for folks nervous about storing their credentials
