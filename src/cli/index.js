@@ -1,4 +1,4 @@
-const server = require('../server');
+const server = require("../server");
 
 const commands = {};
 
@@ -11,7 +11,7 @@ async function run(rawArguments) {
   commands[rawArguments.shift()](rawArguments);
 }
 
-commands.exec = async function(args) {
+commands.exec = async function (args) {
   const config = buildConfig();
   const { isInstalled, isLicensed } = server.getStatus(config);
   if (!isInstalled || !isLicensed) {
@@ -24,20 +24,20 @@ commands.exec = async function(args) {
   } finally {
     server.close();
   }
-}
+};
 
-commands.install = async function() {
+commands.install = async function () {
   const config = buildConfig();
   server.install();
-}
+};
 
 // TODO: Read from a .fvtt-qa.js file
 function buildConfig() {
   return {
-    version: '0.8.6'
+    version: "0.8.6",
   };
 }
 
 module.exports = {
-  run
+  run,
 };
