@@ -4,7 +4,7 @@ const FoundryQA = require('../src/index.js');
 
 const cacheDir = os.tmpdir();
 const installDir = os.tmpdir();
-const username = 'mock-login';
+const username = 'mock-username';
 const password = 'mock-password';
 
 test('install a version not cached locally via user credentials', async () => {

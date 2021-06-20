@@ -1,48 +1,56 @@
-const archiver = require('archiver');
-const handlers = [];
-jest.mock('node-fetch', () => (url, opts) => {
-  const handler = handlers.find(([pattern]) => pattern.test(url));
-  if (handler) return handler[1](url, opts);
-  throw `No mock for url: ${url}`;
-});
-const realFetch = jest.requireActual('node-fetch');
+if (process.env.USE_EXTERNAL_FOUNDRY) {
+  jest.setTimeout(180000);
+} else {
+  mockExternalAPIs();
+}
 
-handlers.push([/^https:\/\/foundryvtt.com$/, () => ({
-  text: () => `
-    <input type="hidden" name="csrfmiddlewaretoken" value="mock-csrfmiddlewaretoken">
-  `,
-  headers: {
-    raw: () => ({
-      'set-cookie': ['csrftoken=mock-csrftoken']
-    })
-  }
-})]);
+function mockExternalAPIs() {
+  const archiver = require('archiver');
+  const handlers = [];
+  jest.mock('node-fetch', () => (url, opts) => {
+    const handler = handlers.find(([pattern]) => pattern.test(url));
+    if (handler) return handler[1](url, opts);
+    throw `No mock for url: ${url}`;
+  });
+  const realFetch = jest.requireActual('node-fetch');
 
-handlers.push([/auth\/login/, () => ({
-  headers: {
-    raw: () => ({
-      'set-cookie': [
-        'sessionid=mock-sessionid',
-        'messages=You are now logged in as mock-username!'
-      ],
-    })
-  }
-})]);
+  handlers.push([/^https:\/\/foundryvtt.com$/, () => ({
+    text: () => `
+      <input type="hidden" name="csrfmiddlewaretoken" value="mock-csrfmiddlewaretoken">
+    `,
+    headers: {
+      raw: () => ({
+        'set-cookie': ['csrftoken=mock-csrftoken']
+      })
+    }
+  })]);
 
-handlers.push([/community\/mock-username\/licenses/, () => ({
-  text: () => `
-    <optgroup label="Stable Releases">
-      <option value="9.9.9">9.9.9</option>
-    </optgroup>
-    <pre class="license-key"><code>mock-license</code></pre>
-  `
-})]);
+  handlers.push([/auth\/login/, () => ({
+    headers: {
+      raw: () => ({
+        'set-cookie': [
+          'sessionid=mock-sessionid',
+          'messages=You are now logged in as mock-username!'
+        ],
+      })
+    }
+  })]);
 
-handlers.push([/download\?version=9\.9\.9/, () => {
-  const archive = archiver('zip');
-  archive.directory(__dirname + '/mockFoundry/', false);
-  archive.finalize();
-  return { body: archive };
-}]);
+  handlers.push([/community\/mock-username\/licenses/, () => ({
+    text: () => `
+      <optgroup label="Stable Releases">
+        <option value="9.9.9">9.9.9</option>
+      </optgroup>
+      <pre class="license-key"><code>mock-license</code></pre>
+    `
+  })]);
 
-handlers.push([/localhost/, realFetch]);
+  handlers.push([/download\?version=9\.9\.9/, () => {
+    const archive = archiver('zip');
+    archive.directory(__dirname + '/mockFoundry/', false);
+    archive.finalize();
+    return { body: archive };
+  }]);
+
+  handlers.push([/localhost/, realFetch]);
+}

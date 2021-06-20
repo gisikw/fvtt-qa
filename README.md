@@ -28,3 +28,11 @@ console.log(`Installed v${latestVersion} of FoundryVTT`);
 - Support project-level configuration files to make baseline testing easy
 - Add Github Hooks integration to allow CI regression testing against Foundry 
 - Support installation via Timed URL for folks nervous about storing their credentials
+
+## TODO
+- [ ] Make license page url detection less brittle
+- [X] Update Installer activation to find an open port
+- [ ] Create a Config module that supports project-level .fvtt-qa.js
+- [X] Update Jest to make fetch-stubbing optional
+- [ ] Update Installer tests to use Config credentials when testing against real API
+- [ ] Split out Installer interactions with foundryvtt.com and the local instance
