@@ -37,5 +37,8 @@ console.log(`Installed v${latestVersion} of FoundryVTT`);
 - [x] Create a Config module that supports project-level .fvtt-qa.js
 - [x] Update Jest to make fetch-stubbing optional
 - [x] Update Installer tests to use Config credentials when testing against real API
-- [ ] Split out Installer interactions with foundryvtt.com and the local instance
+- [x] Split out Installer interactions with foundryvtt.com and the local instance
 - [ ] Use `path.join` instead of `${dir}/${name}`
+- [ ] Support installation of alternate versions
+- [ ] Skip hitting foundryvtt.com at all if version is specified and license available
+- [ ] Basic cli tests

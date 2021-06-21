@@ -1,20 +1,14 @@
 const fs = require("fs");
-const net = require("net");
 const util = require("util");
 const fetch = require("node-fetch");
 const unzipper = require("unzipper");
-const { exec } = require("child_process");
+const server = require("./server");
 
 const mkdir = util.promisify(fs.mkdir);
 
-async function install({
-  installDir,
-  cacheDir,
-  foundryUsername,
-  foundryPassword,
-}) {
-  const { sessionId, license, latestVersion } =
-    await getMetadataFromFoundrySite({ foundryUsername, foundryPassword });
+async function install(config) {
+  const { installDir, cacheDir } = config;
+  const { sessionId, license, latestVersion } = await getSiteData(config);
   const zip = await downloadZipUnlessCached({
     version: latestVersion,
     cacheDir,
@@ -25,16 +19,12 @@ async function install({
   return latestVersion;
 }
 
-async function getMetadataFromFoundrySite({
-  foundryUsername,
-  foundryPassword,
-}) {
+async function getSiteData(config) {
   const { middlewareToken, csrfToken } = await getMiddlewareAndCSRFToken();
   const { sessionId, caseUsername } = await getSessionAndUsername({
     middlewareToken,
     csrfToken,
-    foundryUsername,
-    foundryPassword,
+    ...config,
   });
   const { license, latestVersion } = await getLicenseAndLatestVersion({
     sessionId,
@@ -68,19 +58,9 @@ async function unzipFile(source, path) {
 }
 
 async function activateInstall({ installDir, license }) {
-  await mkdir(`${installDir}/foundrydata`, { recursive: true });
-  const port = await getOpenPort();
-  const server = exec(
-    `node resources/app/main.js --dataPath=${installDir}/foundrydata --port=${port}`,
-    { cwd: `${installDir}/foundryvtt` }
-  );
-  await anyResponse(`http://localhost:${port}`);
-  await post(
-    `http://localhost:${port}/license`,
-    `action=enterKey&licenseKey=${license}`
-  );
-  await post(`http://localhost:${port}/license`, "agree=on&accept=");
-  server.kill();
+  const srv = await server.start({ installDir });
+  await srv.activate(license);
+  await srv.stop();
 }
 
 async function getMiddlewareAndCSRFToken() {
@@ -133,45 +113,9 @@ async function getLicenseAndLatestVersion({ sessionId, caseUsername }) {
   return { license, latestVersion };
 }
 
-function anyResponse(url) {
-  return new Promise((resolve) => {
-    const interval = setInterval(async () => {
-      try {
-        await fetch(url);
-        clearInterval(interval);
-        resolve();
-      } catch (e) {
-        // Ignore failed requests
-      }
-    }, 500);
-  });
-}
-
-function post(url, body) {
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-    body,
-  });
-}
-
 function getCookieValue(resp, cookie) {
   const line = resp.headers.raw()["set-cookie"].find((l) => l.includes(cookie));
   return line.match(/=([^;]+)/)[1];
-}
-
-function getOpenPort() {
-  return new Promise((resolve) => {
-    const server = net.createServer(() => {});
-    server.listen(0, () => {
-      const { port } = server.address();
-      server.close(() => {
-        resolve(port);
-      });
-    });
-  });
 }
 
 module.exports = { install };
