@@ -1,0 +1,9 @@
+{
+  "name": "module-with-cypress",
+  "title": "Example Module - Cypress Integration",
+  "description": "An example FoundryVTT module which uses fvtt-qa and cypress to test",
+  "author": "Kevin Gisi",
+  "version": "1.0.0",
+  "minimumCoreVersion": "0.5.0",
+  "scripts": ["index.js"]
+}
